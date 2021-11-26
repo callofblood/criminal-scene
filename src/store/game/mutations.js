@@ -3,7 +3,7 @@ export default {
         state.killerTime=move
         console.log(state)
     },
-    setCard(state,option){
+    gameSetCard(state,option){
         state[option.cardType]=option.cardName
     },
     deepReset(state){
@@ -15,5 +15,12 @@ export default {
     },
     gameProgress(state,add){
         state.progress+=add
+    },
+    setSceneCard(state,card){
+        state.SceneCards.push(card)
+        console.log(state.SceneCards)
+    },
+    gameResetSceneCard(state){
+        state.SceneCards=[]
     }
 }

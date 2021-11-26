@@ -68,7 +68,7 @@ export default {
                 this.$refs.means[val.id].$el.style.background = "#ff0";
                 // console.log(this.$refs.means[val.id].$el.firstChild.innerText)
                 let cardName=this.$refs.means[val.id].$el.firstChild.innerText
-                this.$store.commit('setCard',{cardType:'meanCard',cardName})
+                this.$store.commit('gameSetCard',{cardType:'meanCard',cardName})
             }
         },
         cluesCardClick(val) {
@@ -76,7 +76,7 @@ export default {
                 this.cluesClick++
                 this.$refs.clues[val.id].$el.style.background = "#ff0";
                 let cardName=this.$refs.clues[val.id].$el.firstChild.innerText
-                this.$store.commit('setCard',{cardType:'clueCard',cardName})
+                this.$store.commit('gameSetCard',{cardType:'clueCard',cardName})
             }
         },
         resetCards() {

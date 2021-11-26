@@ -84,12 +84,15 @@ export default {
             if (this.active++ > 2) this.active = 0;
         },
         handleReset() {
-            this.$store.commit("resetSceneCard");
             if (this.step == 1) {
-                //凶手已选择卡，需要重置//理论上不应该可以选第二次，
+                //凶手已选择卡，需要重置//理论上应该不可以选第二次，
                 bus.$emit("reset");
-
                 this.$store.commit("deepReset");
+            }
+            if(this.step==3){
+                this.$store.commit("resetSceneCard");
+                this.$store.commit("gameResetSceneCard");
+                
             }
         }
     },

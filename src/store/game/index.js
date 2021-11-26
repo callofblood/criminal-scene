@@ -5,7 +5,8 @@ export default {
         witnessTime:false,
         meanCard:'',
         clueCard:'',
-        progress:0
+        progress:0,
+        SceneCards:[]
     },
     mutations
 }

@@ -11,11 +11,11 @@ export default {
     },
     changeWeight(state,weight){
         state.weight+=weight
-        console.log(state.weight)
+        // console.log(state.weight)
     },
     changeSceneCardIndex(state,index){
-        
-        state.SceneCardIndex.push(index)
+        let key=Object.keys(index)[0]
+        state.SceneCardIndex[key]=index[key]
         console.log(state.SceneCardIndex)
     },
     resetSceneCard(state){

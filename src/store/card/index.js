@@ -6,7 +6,7 @@ export default {
         SceneCname:[],
         SceneEname:[],
         weight:0 ,
-        SceneCardIndex:[],
+        SceneCardIndex:{},
         SceneCardReset:true
     },
     mutations
