@@ -97,10 +97,10 @@ export default {
 
 <style lang="scss">
 .player {
-    height: 200px;
+    height: 250px;
     border: 2px dashed #000;
     border-radius: 20px;
-    width: 370px;
+    width: 550px;
     overflow: hidden;
 
     .name {
@@ -108,25 +108,25 @@ export default {
     }
 
     img {
-        width: 100px;
-        height: 100px;
+        width: 125px;
+        height: 125px;
         float: left;
         padding: 1px;
         border-radius: 20px;
     }
 
     .cards {
-        width: 250px;
-        float: left;
+        width: 400px;
+        float: right;
         margin-left: 15px;
         overflow: hidden;
         .means,
         .clues {
             border: 1px solid #f00;
             box-sizing: border-box;
-            margin-left: 12px;
-            height: 100px;
-            width: 50px;
+            margin-left: 20px;
+            height: 125px;
+            width: 80px;
             float: right;
             overflow: hidden;
             background: #f00;

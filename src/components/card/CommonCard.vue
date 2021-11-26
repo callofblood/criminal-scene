@@ -33,8 +33,8 @@ export default {
     border-radius: 10px;
     
     img.cardImg{
-        width: 50px;
-        height:50px;
+        width: 75px;
+        height:75px;
         // background:#ff0;
     }
     .cname,.ename{

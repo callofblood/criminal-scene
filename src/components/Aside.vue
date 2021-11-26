@@ -21,7 +21,7 @@
 }
 
 .el-menu-vertical-demo {
-    width: 400px;
+    width: 600px;
     height: 100%;
     padding: 0;
     background: rgb(203, 164, 229);
@@ -31,7 +31,7 @@
     }
 
     .el-menu-item {
-        height: 200px;
+        height: 250px;
         margin-bottom: 50px;
         // margin-top:100px;
     }

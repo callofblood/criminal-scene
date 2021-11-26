@@ -1,5 +1,6 @@
 <template>
 <div class='main'>
+    <v-timer class='timer'></v-timer>
     <v-hint></v-hint>
     <v-scenecard v-for='(item,id) in num' 
     :key='id' 
@@ -18,13 +19,6 @@
       </template>
     </el-result>
   </el-col>
-  <!-- <el-col :sm="12" :lg="6">
-    <el-result icon="error" title="错误提示" subTitle="请根据提示进行操作">
-      <template slot="extra">
-        <el-button type="primary" size="medium">返回</el-button>
-      </template>
-    </el-result>
-  </el-col> -->
   <el-col :sm="12" :lg="24">
     <el-result icon="info" title="信息提示" subTitle="请注意发言时长">
       <template slot="extra">
@@ -41,12 +35,13 @@ import axios from 'axios'
 import SceneCard from './card/SceneCard'
 // import Player from './Player'
 import Hint from './UI/Hint'
-
+import Timer from './UI/Timer'
 export default {
     components: {
         'v-scenecard': SceneCard,
         // 'v-player':Player,
-        'v-hint':Hint
+        'v-hint':Hint,
+        'v-timer':Timer
     },
     data() {
         return {
@@ -79,19 +74,30 @@ export default {
     // align-items: center;
     overflow: hidden;
     height:100%;
+    
+   
     .sceneCard{
-        margin-left:100px;
+        margin-left:5%;
         margin-top:100px;
-        overflow: hidden;
+        // overflow: hidden;
         width:200px;
         float: left;
+        
+        // height:600px;
         // margin-bottom:200px;
     }
     .info{
         position: absolute;
         bottom:0;
     }
-    
+    .timer{
+        float: left;
+        font-size:10em;
+        line-height: 1em;
+        position:absolute;
+        left:200px;
+        margin-top:0px;
+    }
     
 }
 

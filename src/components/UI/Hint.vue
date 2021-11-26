@@ -24,7 +24,7 @@ export default {
         return {
             active: 0,
             step: 0,
-            hints: ["游戏开始", "确认", "目击者复述现场", "确认", "......"]
+            hints: ["游戏开始", "确认", "目击者复述现场", "确认", "调查员发言"]
         };
     },
     methods: {
@@ -68,9 +68,10 @@ export default {
                 if (this.weight == 6) {
                     this.$message({
                         type: "success",
-                        message: "目击者已确认"
+                        message: "目击者已确认，请调查员侦察现场"
                     });
                     this.$store.commit("gameProgress", 5);
+                    bus.$emit("timer");
                 }else{
                     this.$alert("没有选满六张卡，请目击者重新选择", "Error", {
                         confirmButtonText: "确定"
