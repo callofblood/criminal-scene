@@ -1,0 +1,19 @@
+export default {
+    killerMove(state,move){
+        state.killerTime=move
+        console.log(state)
+    },
+    setCard(state,option){
+        state[option.cardType]=option.cardName
+    },
+    deepReset(state){
+        state.meanCard=''
+        state.clueCard=''
+    },
+    witnessMove(state){
+        state.witnessTime=true
+    },
+    gameProgress(state,add){
+        state.progress+=add
+    }
+}
