@@ -1,12 +1,12 @@
 <template>
-<div class='player' @click='selectPlayer(num)'>
+<div class='player' @click='selectPlayer(num)' :class='suspectedClass'>
     <img :src="imgUrl" alt="">
     <div class='cards'>
         <v-card class='means' v-for='(i,id) in meansNum' :key='i' :cname='cname[id+num*4]' :ename='ename[id+num*4]' :id='id' @getSonValue='meansCardClick' ref='means'></v-card>
         <v-card class='clues' v-for='(i,id) in cluesNum' :key='i+4' :cname='cname[id+num*4+20]' :ename='ename[id+num*4+20]' :id='id' @getSonValue='cluesCardClick' ref='clues'></v-card>
     </div>
     <div class='stations'>
-    <div class='el-icon-close-notification icon' ></div>
+    <div class='el-icon-view icon' @click='suspect'></div>
     <div class='el-icon-microphone icon'></div>
     </div>
     <!-- <el-button @click='resetCards'>reset</el-button> -->
@@ -26,7 +26,8 @@ export default {
             meansNum: 4,
             cluesNum: 4,
             meansClick: 0,
-            cluesClick: 0
+            cluesClick: 0,
+            suspectedClass:''
         };
     },
     computed: {
@@ -70,6 +71,11 @@ export default {
                 let cardName=this.$refs.means[val.id].$el.firstChild.innerText
                 this.$store.commit('gameSetCard',{cardType:'meanCard',cardName})
             }
+            if(this.suspectedClass){
+                
+                this.$refs.means[val.id].$el.style.background = "#ff0";
+                
+            }
         },
         cluesCardClick(val) {
             if (this.$store.state.player.killer == this.num && this.cluesClick < 1 &&this.killerTime) { //this.num指第几个玩家
@@ -77,6 +83,10 @@ export default {
                 this.$refs.clues[val.id].$el.style.background = "#ff0";
                 let cardName=this.$refs.clues[val.id].$el.firstChild.innerText
                 this.$store.commit('gameSetCard',{cardType:'clueCard',cardName})
+            }
+            if(this.suspectedClass){
+                this.$refs.clues[val.id].$el.style.background = "#ff0";
+                
             }
         },
         resetCards() {
@@ -90,7 +100,10 @@ export default {
             this.cluesClick = 0
 
         },
-
+        suspect(){
+            this.suspectedClass='suspected'
+        },
+        
     }
 };
 </script>
@@ -102,7 +115,7 @@ export default {
     border-radius: 20px;
     width: 550px;
     overflow: hidden;
-
+    // background:#f00;
     .name {
         line-height: 20px;
     }
@@ -152,7 +165,7 @@ export default {
             background: #fff;
         }
     }
-    .el-icon-close-notification.icon{
+    .el-icon-view.icon{
         // float: left;
         
         font-size:50px;
@@ -168,5 +181,7 @@ export default {
         left:20px;
     }
 }
-
+.suspected{
+    background:#ff0;
+}
 </style>

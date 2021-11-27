@@ -18,16 +18,23 @@ import Aside from '@/components/Aside'
 import Header from '@/components/Header'
 import Main from '@/components/Main'
 import Footer from '@/components/Footer'
+import bus from '@/router/bus.js'
 export default {
     data() {
         return {}
     },
+    inject:['reload'],
     components: {
         'v-aside': Aside,
         'v-header':Header,
         'v-main':Main,
         'v-footer':Footer
-    }
+    },
+    mounted() {
+        bus.$on('f5',()=>{
+          this.reload()  
+        })
+    },
 
 }
 </script>

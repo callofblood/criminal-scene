@@ -22,8 +22,11 @@ export default {
         }
     },
     mounted() {
-        bus.$on('timer', () => {
+        bus.$on('timerStart', () => {
             this.timerStart()
+        })
+        bus.$on('timerReset',()=>{
+            this.timerReset()
         })
     },
     methods: {
@@ -35,6 +38,11 @@ export default {
                 that.seconds--
 
             }, 1000)
+        },
+        timerReset(){
+            this.seconds=120    
+            clearInterval(this.timer)
+            console.log(this.timer)
         }
     }
 }

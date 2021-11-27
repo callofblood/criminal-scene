@@ -1,6 +1,6 @@
 <template>
 <div class='main'>
-    <v-timer class='timer'></v-timer>
+    <!-- <v-timer class='timer'></v-timer> -->
     <v-hint></v-hint>
     <v-scenecard v-for='(item,id) in num' 
     :key='id' 
@@ -35,13 +35,13 @@ import axios from 'axios'
 import SceneCard from './card/SceneCard'
 // import Player from './Player'
 import Hint from './UI/Hint'
-import Timer from './UI/Timer'
+// import Timer from './UI/Timer'
 export default {
     components: {
         'v-scenecard': SceneCard,
         // 'v-player':Player,
         'v-hint':Hint,
-        'v-timer':Timer
+        // 'v-timer':Timer
     },
     data() {
         return {
@@ -90,14 +90,7 @@ export default {
         position: absolute;
         bottom:0;
     }
-    .timer{
-        float: left;
-        font-size:10em;
-        line-height: 1em;
-        position:absolute;
-        left:200px;
-        margin-top:0px;
-    }
+    
     
 }
 
