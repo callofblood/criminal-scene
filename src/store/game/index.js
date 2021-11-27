@@ -6,7 +6,10 @@ export default {
         meanCard:'',
         clueCard:'',
         progress:0,
-        SceneCards:[]
+        SceneCards:[],
+        step:0,
+        whichDetective:-1,
+        totalPlayer: 5,
     },
     mutations
 }

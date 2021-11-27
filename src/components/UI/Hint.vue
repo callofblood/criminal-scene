@@ -27,10 +27,11 @@ export default {
     data() {
         return {
             active: 0,
-            step: 0,
+
             seconds: 120,
             timer: null,
-            hints: ["游戏开始", "确认", "确认", "调查员发言", "结束发言"]
+            hints: ["游戏开始", "凶手确认", "目击者确认", 
+            "侦探确认", "侦探确认", "侦探确认", "侦探确认", "侦探确认", "结束发言"]
         };
     },
     methods: {
@@ -69,7 +70,7 @@ export default {
                     this.$alert("没有选满两张卡，请凶手重新选择", "Error", {
                         confirmButtonText: "确定"
                     });
-                    this.step--;
+                    this.$store.commit('gameStep', -1)
                 }
             }
             // if (this.step == 2) {
@@ -92,14 +93,28 @@ export default {
                     this.$store.commit("gameProgress", 5);
                     this.timerReset();
                     this.timerStart();
+                    //随机选一名玩家行动
+                    this.$store.commit('detectiveAlter')
+                    bus.$emit('chooseWhichDetective')
                 } else {
                     this.$alert("没有选满六张卡，请目击者重新选择", "Error", {
                         confirmButtonText: "确定"
                     });
-                    this.step--;
+                    // this.step--;
+                    this.$store.commit('gameStep', -1)
+
                 }
             }
-            this.step += 1;
+            if (this.step >=3&&this.step<=7) {
+
+                this.$store.commit('detectiveAlter')
+                bus.$emit('chooseWhichDetective')
+
+            }
+            // this.step += 1;
+
+            this.$store.commit('gameStep', 1)
+
         },
         next() {
             if (this.active++ > 2) this.active = 0;
@@ -114,9 +129,9 @@ export default {
                 this.$store.commit("resetSceneCard");
                 this.$store.commit("gameResetSceneCard");
             }
-            if(this.step==3){
+            if (this.step == 3) {
                 bus.$emit("reset");
-                
+
             }
         },
         timerStart() {
@@ -130,7 +145,7 @@ export default {
                     clearInterval(that.timer)
                     that.$alert("凶手选择超时，调查员胜利，游戏重新开始", "重开", {
                         confirmButtonText: "Remake",
-                        showClose:false
+                        showClose: false
                     }).then(() => {
                         that.$router.go(0)
                     }).catch(() => {
@@ -142,7 +157,7 @@ export default {
                     clearInterval(that.timer)
                     that.$alert("目击者选择超时，凶手胜利，游戏重新开始", "重开", {
                         confirmButtonText: "Remake",
-                        showClose:false
+                        showClose: false
                     }).then(() => {
                         that.$router.go(0)
                     }).catch(() => {
@@ -167,7 +182,8 @@ export default {
         ...mapState({
             meanCard: state => state.game.meanCard,
             clueCard: state => state.game.clueCard,
-            weight: state => state.card.weight
+            weight: state => state.card.weight,
+            step: state => state.game.step
         }),
         getTime() {
             let min = parseInt(this.seconds / 60);

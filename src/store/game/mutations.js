@@ -5,6 +5,7 @@ export default {
     },
     gameSetCard(state,option){
         state[option.cardType]=option.cardName
+        console.log(state)
     },
     deepReset(state){
         state.meanCard=''
@@ -22,5 +23,17 @@ export default {
     },
     gameResetSceneCard(state){
         state.SceneCards=[]
+    },
+    gameStep(state,add){
+        state.step+=add
+    },
+    detectiveAlter(state){
+        if(state.whichDetective==-1){
+            state.whichDetective=Math.floor(Math.random()*state.totalPlayer)
+        }else{
+            state.whichDetective=(state.whichDetective+1)%state.totalPlayer
+        }
+        console.log(state.whichDetective)
     }
+
 }

@@ -1,13 +1,17 @@
 <template>
-<div class='player' @click='selectPlayer(num)' :class='suspectedClass'>
+<div class='player' @click='selectPlayer(num)' :class='nowDetective'>
     <img :src="imgUrl" alt="">
     <div class='cards'>
         <v-card class='means' v-for='(i,id) in meansNum' :key='i' :cname='cname[id+num*4]' :ename='ename[id+num*4]' :id='id' @getSonValue='meansCardClick' ref='means'></v-card>
         <v-card class='clues' v-for='(i,id) in cluesNum' :key='i+4' :cname='cname[id+num*4+20]' :ename='ename[id+num*4+20]' :id='id' @getSonValue='cluesCardClick' ref='clues'></v-card>
     </div>
     <div class='stations'>
-    <div class='el-icon-view icon' @click='suspect'></div>
-    <div class='el-icon-microphone icon'></div>
+        <div class='suspectButton button'>
+            <el-button type="warning" round @click='suspect'>怀疑</el-button>
+        </div>
+        <div class='assertButton button'>
+            <el-button type="danger" round>断言</el-button>
+        </div>
     </div>
     <!-- <el-button @click='resetCards'>reset</el-button> -->
 </div>
@@ -18,16 +22,17 @@ import {
     mapState
 } from "vuex";
 import card from "./card/CommonCard";
-import bus from '../router/bus.js'
+import bus from "../router/bus.js";
 export default {
-    props: ["imgUrl", "num", ],
+    props: ["imgUrl", "num", 'which'],
     data() {
         return {
             meansNum: 4,
             cluesNum: 4,
             meansClick: 0,
             cluesClick: 0,
-            suspectedClass:''
+            nowDetective: '',
+            suspected: false
         };
     },
     computed: {
@@ -35,7 +40,9 @@ export default {
             cname: state => state.card.cname,
             ename: state => state.card.ename,
             ifChoose: state => (state.player.killer == -1 ? false : true),
-            killerTime:state=>state.game.killerTime
+            killerTime: state => state.game.killerTime,
+            step: state => state.game.step,
+            whichDetective: state => state.game.whichDetective
         })
         // ...mapGetters(['playerByIdentity'])
     },
@@ -45,8 +52,11 @@ export default {
     mounted() {
         // console.log(this.playerByIdentity('killer'))
         // console.log(this.whichKiller)
-        bus.$on('reset', () => {
-            this.resetCards()
+        bus.$on("reset", () => {
+            this.resetCards();
+        });
+        bus.$on('chooseWhichDetective', () => {
+            this.chooseWhichDetective()
         })
     },
     methods: {
@@ -63,30 +73,46 @@ export default {
         },
         meansCardClick(val) {
             //val是点了第几张卡
-            if (this.$store.state.player.killer == this.num && this.meansClick < 1&&this.killerTime) { //this.num指第几个玩家
+            if (
+                this.$store.state.player.killer == this.num &&
+                this.meansClick < 1 &&
+                this.killerTime
+            ) {
+                //this.num指第几个玩家
 
-                this.meansClick++
+                this.meansClick++;
                 this.$refs.means[val.id].$el.style.background = "#ff0";
                 // console.log(this.$refs.means[val.id].$el.firstChild.innerText)
-                let cardName=this.$refs.means[val.id].$el.firstChild.innerText
-                this.$store.commit('gameSetCard',{cardType:'meanCard',cardName})
+                let cardName = this.$refs.means[val.id].$el.firstChild.innerText;
+                this.$store.commit("gameSetCard", {
+                    cardType: "meanCard",
+                    cardName
+                });
+                // console.log(this.$store.state.game)
             }
-            if(this.suspectedClass){
-                
+            if (this.suspected) {
                 this.$refs.means[val.id].$el.style.background = "#ff0";
-                
             }
         },
         cluesCardClick(val) {
-            if (this.$store.state.player.killer == this.num && this.cluesClick < 1 &&this.killerTime) { //this.num指第几个玩家
-                this.cluesClick++
+            if (
+                this.$store.state.player.killer == this.num &&
+                this.cluesClick < 1 &&
+                this.killerTime
+            ) {
+                //this.num指第几个玩家
+                this.cluesClick++;
                 this.$refs.clues[val.id].$el.style.background = "#ff0";
-                let cardName=this.$refs.clues[val.id].$el.firstChild.innerText
-                this.$store.commit('gameSetCard',{cardType:'clueCard',cardName})
+                let cardName = this.$refs.clues[val.id].$el.firstChild.innerText;
+                this.$store.commit("gameSetCard", {
+                    cardType: "clueCard",
+                    cardName
+                });
+                // console.log(this.$store.state.game)
+
             }
-            if(this.suspectedClass){
+            if (this.suspected) {
                 this.$refs.clues[val.id].$el.style.background = "#ff0";
-                
             }
         },
         resetCards() {
@@ -96,14 +122,23 @@ export default {
             for (let i = 0; i < 4; i++) {
                 this.$refs.means[i].$el.style.background = "#f00";
             }
-            this.meansClick = 0
-            this.cluesClick = 0
-
+            this.meansClick = 0;
+            this.cluesClick = 0;
         },
-        suspect(){
-            this.suspectedClass='suspected'
+        suspect() {
+            if (this.which != this.whichDetective) this.suspected = true
+            else {
+                this.$alert("你不能质疑自己！", "Are you OK?", {
+                    confirmButtonText: "I'm OK"
+                });
+            }
         },
-        
+        chooseWhichDetective() {
+            if (this.which == this.whichDetective) this.nowDetective = "nowDetective";
+            else {
+                this.nowDetective = ''
+            }
+        }
     }
 };
 </script>
@@ -115,6 +150,7 @@ export default {
     border-radius: 20px;
     width: 550px;
     overflow: hidden;
+
     // background:#f00;
     .name {
         line-height: 20px;
@@ -133,6 +169,7 @@ export default {
         float: right;
         margin-left: 15px;
         overflow: hidden;
+
         .means,
         .clues {
             border: 1px solid #f00;
@@ -165,23 +202,27 @@ export default {
             background: #fff;
         }
     }
-    .el-icon-view.icon{
+
+    .suspectButton.button {
         // float: left;
-        
-        font-size:50px;
+
+        font-size: 25px;
     }
-    .el-icon-microphone.icon{
+
+    .assertButton.button {
         // float: left;
-        margin-left:20px;
-        font-size:50px;
+        // margin-left:20px;
+        font-size: 25px;
     }
-    .stations{
+
+    .stations {
         position: absolute;
-        bottom:20px;
-        left:20px;
+        bottom: 10px;
+        left: 50px;
     }
 }
-.suspected{
-    background:#ff0;
+
+.nowDetective {
+    background: #000;
 }
 </style>

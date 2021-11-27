@@ -3,7 +3,7 @@ import store from '@/store/index'
 let cname = []
 let ename = []
 
-let n=store.state.player.totalPlayer+1
+let n=store.state.game.totalPlayer+1
 export default {
 
     genCommonCard() {
