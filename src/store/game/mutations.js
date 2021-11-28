@@ -33,7 +33,7 @@ export default {
         }else{
             state.whichDetective=(state.whichDetective+1)%state.totalPlayer
         }
-        console.log(state.whichDetective)
+        if(state.step==7)state.whichDetective=-1
     }
 
 }

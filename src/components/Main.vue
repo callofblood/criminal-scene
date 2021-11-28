@@ -2,16 +2,12 @@
 <div class='main'>
     <!-- <v-timer class='timer'></v-timer> -->
     <v-hint></v-hint>
-    <v-scenecard v-for='(item,id) in num' 
-    :key='id' 
-    class='sceneCard'
-    :index='id'
-    ></v-scenecard>
+    <v-scenecard v-for='(item,id) in num' :key='id' class='sceneCard' :index='id'></v-scenecard>
     <!-- <div class='myself'>
         <v-player :imgUrl='imgUrl' :num='0'></v-player>
     </div> -->
-    <el-row class='info'>
- 
+    <!-- <el-row class='info'>
+
   <el-col :sm="12" :lg="24">
     <el-result icon="warning" title="警告" subTitle="剩余破案次数:2">
       <template slot="extra">
@@ -26,7 +22,8 @@
       </template>
     </el-result>
   </el-col>
-</el-row>
+</el-row> -->
+    <v-log class='log'></v-log>
 </div>
 </template>
 
@@ -36,62 +33,70 @@ import SceneCard from './card/SceneCard'
 // import Player from './Player'
 import Hint from './UI/Hint'
 // import Timer from './UI/Timer'
+import Log from './UI/Log'
 export default {
     components: {
         'v-scenecard': SceneCard,
         // 'v-player':Player,
-        'v-hint':Hint,
+        'v-hint': Hint,
+        'v-log': Log
         // 'v-timer':Timer
     },
     data() {
         return {
             num: 6,
-            imgUrl:require('@/assets/player/1.jpg'),
-            
+            imgUrl: require('@/assets/player/1.jpg'),
+
         }
     },
     methods: {
         genSceneCard() {
             axios.get('/genSceneCard').then(res => {
-                let SceneCname=res.data.SceneCname
-                let SceneEname=res.data.SceneEname
-                this.$store.commit('addSceneCardName',{SceneCname,SceneEname})
+                let SceneCname = res.data.SceneCname
+                let SceneEname = res.data.SceneEname
+                this.$store.commit('addSceneCardName', {
+                    SceneCname,
+                    SceneEname
+                })
             })
         }
     },
     mounted() {
         this.genSceneCard()
-        
+
     },
-    
+
 }
 </script>
 
-<style lang="scss" scope>
+<style lang="scss">
 .main {
     position: relative;
     // display: flex;
     // align-items: center;
     overflow: hidden;
-    height:100%;
-    
-   
-    .sceneCard{
-        margin-left:5%;
-        margin-top:100px;
+    height: 100%;
+
+    .sceneCard {
+        margin-left: 5%;
+        margin-top: 100px;
         // overflow: hidden;
-        width:200px;
+        width: 200px;
         float: left;
-        
+
         // height:600px;
         // margin-bottom:200px;
     }
-    .info{
+
+    .info {
+        position: absolute;
+        bottom: 0;
+    }
+    .log{
         position: absolute;
         bottom:0;
+        
     }
-    
-    
-}
 
+}
 </style>
