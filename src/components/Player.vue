@@ -32,7 +32,9 @@ export default {
             meansClick: 0,
             cluesClick: 0,
             nowDetective: '',
-            suspected: false
+            suspected: false,
+            meansSuspect: [],
+            cluesSuspect: []
         };
     },
     computed: {
@@ -58,6 +60,39 @@ export default {
         bus.$on('chooseWhichDetective', () => {
             this.chooseWhichDetective()
         })
+
+        bus.$on('sendSuspect', () => {
+            if (this.meansSuspect.length > 0 || this.cluesSuspect.length > 0) {//判断是否有被怀疑
+                let suspected = ''
+                if (this.meansSuspect) suspected = Object.keys(this.meansSuspect[0])[0]//标定被怀疑的ID
+                if (this.cluesSuspect) suspected = Object.keys(this.meansSuspect[0])[0]
+                let suspectMes = this.whichDetective + `号侦探怀疑${suspected}号:`
+
+                if (this.meansSuspect.length > 0) {//依次加入
+                    suspectMes += '作案手法:@'
+                    for (let i in this.meansSuspect) {
+                        suspectMes += this.meansSuspect[i][suspected]+'  '
+                    }
+                }
+
+                if (this.cluesSuspect.length > 0) {//依次加入
+                    suspectMes += '@现场线索:@'
+                    for(let i in this.cluesSuspect){
+                        suspectMes += this.cluesSuspect[i][suspected]+'  '
+                        
+                    }
+                } 
+                suspectMes+= '@'
+                // console.log(suspectMes)
+
+                bus.$emit('addActivity',suspectMes)//传给log
+                this.meansSuspect = []
+                this.cluesSuspect = []
+            }
+        })
+        bus.$on('resetSuspect', () => {
+            this.resetSuspect()
+        })
     },
     methods: {
         selectPlayer(num) {
@@ -82,7 +117,6 @@ export default {
 
                 this.meansClick++;
                 this.$refs.means[val.id].$el.style.background = "#ff0";
-                // console.log(this.$refs.means[val.id].$el.firstChild.innerText)
                 let cardName = this.$refs.means[val.id].$el.firstChild.innerText;
                 this.$store.commit("gameSetCard", {
                     cardType: "meanCard",
@@ -92,6 +126,10 @@ export default {
             }
             if (this.suspected) {
                 this.$refs.means[val.id].$el.style.background = "#ff0";
+                let id = this.which //标定怀疑的对象
+                let fm = {}
+                fm[id] = this.$refs.means[val.id].$el.firstChild.innerText
+                this.meansSuspect.push(fm)
             }
         },
         cluesCardClick(val) {
@@ -108,11 +146,14 @@ export default {
                     cardType: "clueCard",
                     cardName
                 });
-                // console.log(this.$store.state.game)
-
             }
             if (this.suspected) {
                 this.$refs.clues[val.id].$el.style.background = "#ff0";
+                let id = this.which
+                let fm = {}
+                fm[id] = this.$refs.clues[val.id].$el.firstChild.innerText
+                this.cluesSuspect.push(fm)
+
             }
         },
         resetCards() {
@@ -138,6 +179,10 @@ export default {
             else {
                 this.nowDetective = ''
             }
+        },
+        resetSuspect() {
+            this.meansSuspect = []
+            this.cluesSuspect = []
         }
     }
 };

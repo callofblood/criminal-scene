@@ -86,7 +86,7 @@ export default {
         // margin-bottom:5px;
         margin: 0;
         font-size: 2em;
-        font-family: SWItalt;
+        font-family: "Black And White Picture";
     }
 
     .infinite-list {

@@ -126,14 +126,14 @@ export default {
 
         .cname {
             font-size: 2em;
-            font-family: "黑体";
+            font-family: "Eater";
             text-align: center;
 
         }
 
         .ename {
             font-size: 1em;
-            font-family: "等距更纱黑体 Slab SC Xlight";
+            font-family: "Caesar Dressing";
             text-align: center;
 
         }

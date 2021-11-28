@@ -104,6 +104,7 @@ export default {
                 }
             }
             if (this.step >= 3 && this.step <= 7) {
+                bus.$emit('sendSuspect')                
                 this.$store.commit("detectiveAlter"); //改变发言人
                 bus.$emit("chooseWhichDetective"); //给player组件传值，改变背景色
                 bus.$emit("reset"); //清空所有以质疑的
@@ -131,6 +132,7 @@ export default {
             }
             if (this.step >= 3 && this.step <= 7) {
                 bus.$emit("reset");
+                bus.$emit('resetSuspect')
             }
         },
         timerStart() {
