@@ -1,5 +1,5 @@
 <template>
-<div class='SceneCard' >
+<div class='SceneCard'>
     <div class='title'>标题</div>
     <div class='desc' v-for='(item,id) in num' :key='id' @click='handleClick(id)' ref='desc'>
         <div class='weight' v-if='id==click'>{{weight}}</div>
@@ -40,27 +40,44 @@ export default {
                     this.$store.commit('changeSceneCardIndex', mark)
                     this.weight = this.$store.state.card.weight
                     this.getWitnessReport()
+                } else if (this.witnessTime == 'reselect' ) {
+                    // console.log(this.$store.state.game)
+                    let nowWeight
+
+                    for (let i = 0; i < 6; i++) {
+                        let dom = this.$refs.desc[i].getElementsByClassName('weight')
+                        if (dom.length > 0) {
+                            nowWeight = dom[0].innerText
+                            console.log(nowWeight)
+
+                        }
+                    }
+                    this.click = id
+                    this.weight = nowWeight
+                    // console.log(this.SceneCards)
+                    
+                    let cname = this.$refs.desc[id].getElementsByClassName('cname')[0].innerText
+                    // console.log(cname)
+                    let boo = {
+                        index: nowWeight - 1,
+                        content: cname
+                    }
+                    this.$store.commit('setSceneCard', boo)
+                    this.$store.commit('witnessMove',false)
                 }
-
             }
-            
-
         },
         getWitnessReport() {
-            let lastKey=-1
+            let lastKey = -1
             // let report=[]
             for (let key in this.SceneCardIndex) {
-                // console.log('key:' + key)
-                // if(this.index==key){
-                    //  let cname = this.$refs.desc[this.SceneCardIndex[key]].children[0]
-                //     report.push(cname)
-                // }
-                lastKey=key
+
+                lastKey = key
             }
             let cname = this.$refs.desc[this.SceneCardIndex[lastKey]].children[0].innerText
             console.log(cname)
             // console.log(report)
-            this.$store.commit('setSceneCard',cname)
+            this.$store.commit('addSceneCard', cname)
 
         }
 
@@ -79,7 +96,8 @@ export default {
             SceneEname: state => state.card.SceneEname,
             SceneCardIndex: state => state.card.SceneCardIndex,
             witnessTime: state => state.game.witnessTime,
-            ifreset: state => state.card.SceneCardReset
+            ifreset: state => state.card.SceneCardReset,
+            SceneCards: state => state.game.SceneCards
             // weight:state=>state.card.weight
         }),
 

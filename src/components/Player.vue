@@ -10,7 +10,7 @@
             <el-button type="warning" round @click='suspect'>怀疑</el-button>
         </div>
         <div class='assertButton button'>
-            <el-button type="danger" round>断言</el-button>
+            <el-button type="danger" round @click='assert'>断言</el-button>
         </div>
     </div>
     <!-- <el-button @click='resetCards'>reset</el-button> -->
@@ -34,7 +34,9 @@ export default {
             nowDetective: '',
             suspected: false,
             meansSuspect: [],
-            cluesSuspect: []
+            cluesSuspect: [],
+            meansAssert: [],
+            cluesAssert: []
         };
     },
     computed: {
@@ -43,6 +45,7 @@ export default {
             ename: state => state.card.ename,
             ifChoose: state => (state.player.killer == -1 ? false : true),
             killerTime: state => state.game.killerTime,
+            detectiveTime: state => state.game.detectiveTime,
             step: state => state.game.step,
             whichDetective: state => state.game.whichDetective
         })
@@ -56,42 +59,68 @@ export default {
         // console.log(this.whichKiller)
         bus.$on("reset", () => {
             this.resetCards();
+            
         });
         bus.$on('chooseWhichDetective', () => {
             this.chooseWhichDetective()
         })
 
         bus.$on('sendSuspect', () => {
-            if (this.meansSuspect.length > 0 || this.cluesSuspect.length > 0) {//判断是否有被怀疑
+            if (this.meansSuspect.length > 0 || this.cluesSuspect.length > 0) { //判断是否有被怀疑
                 let suspected = ''
-                if (this.meansSuspect) suspected = Object.keys(this.meansSuspect[0])[0]//标定被怀疑的ID
+                if (this.meansSuspect) suspected = Object.keys(this.meansSuspect[0])[0] //标定被怀疑的ID
                 if (this.cluesSuspect) suspected = Object.keys(this.meansSuspect[0])[0]
                 let suspectMes = this.whichDetective + `号侦探怀疑${suspected}号:`
 
-                if (this.meansSuspect.length > 0) {//依次加入
+                if (this.meansSuspect.length > 0) { //依次加入
                     suspectMes += '作案手法:@'
                     for (let i in this.meansSuspect) {
-                        suspectMes += this.meansSuspect[i][suspected]+'  '
+                        suspectMes += this.meansSuspect[i][suspected] + '  '
                     }
                 }
 
-                if (this.cluesSuspect.length > 0) {//依次加入
+                if (this.cluesSuspect.length > 0) { //依次加入
                     suspectMes += '@现场线索:@'
-                    for(let i in this.cluesSuspect){
-                        suspectMes += this.cluesSuspect[i][suspected]+'  '
-                        
+                    for (let i in this.cluesSuspect) {
+                        suspectMes += this.cluesSuspect[i][suspected] + '  '
+
                     }
-                } 
-                suspectMes+= '@'
+                }
+                suspectMes += '@'
                 // console.log(suspectMes)
 
-                bus.$emit('addActivity',suspectMes)//传给log
+                bus.$emit('addActivity', suspectMes) //传给log
                 this.meansSuspect = []
                 this.cluesSuspect = []
             }
         })
-        bus.$on('resetSuspect', () => {
+        bus.$on('sendAssert', () => {
+            if (this.meansAssert.length > 0 && this.cluesAssert.length > 0) { //判断是否有被怀疑
+                let asserted = ''
+                asserted = Object.keys(this.meansAssert[0])[0] //标定被怀疑的ID
+                let assertMes = this.whichDetective + `号侦探断言${asserted}号:`
+
+                assertMes += '作案手法:@'
+                for (let i in this.meansAssert) {
+                    assertMes += this.meansAssert[i][asserted] + '  '
+                }
+
+                assertMes += '@现场线索:@'
+                for (let i in this.cluesAssert) {
+                    assertMes += this.cluesAssert[i][asserted] + '  '
+                }
+
+                assertMes += '@'
+                // console.log(suspectMes)
+
+                bus.$emit('addActivity', assertMes) //传给log
+                this.meansSuspect = []
+                this.cluesSuspect = []
+            }
+        })
+        bus.$on('resetSuspectAndAssert', () => {
             this.resetSuspect()
+            this.resetAssert()
         })
     },
     methods: {
@@ -131,6 +160,14 @@ export default {
                 fm[id] = this.$refs.means[val.id].$el.firstChild.innerText
                 this.meansSuspect.push(fm)
             }
+            if (this.asserted && this.meansClick < 1) {
+                this.meansClick++;
+                this.$refs.means[val.id].$el.style.background = "orange";
+                let id = this.which //标定怀疑的对象
+                let fm = {}
+                fm[id] = this.$refs.means[val.id].$el.firstChild.innerText
+                this.meansAssert.push(fm)
+            }
         },
         cluesCardClick(val) {
             if (
@@ -153,7 +190,14 @@ export default {
                 let fm = {}
                 fm[id] = this.$refs.clues[val.id].$el.firstChild.innerText
                 this.cluesSuspect.push(fm)
-
+            }
+            if (this.asserted && this.cluesClick < 1) {
+                this.cluesClick++;
+                this.$refs.clues[val.id].$el.style.background = "orange";
+                let id = this.which
+                let fm = {}
+                fm[id] = this.$refs.clues[val.id].$el.firstChild.innerText
+                this.cluesAssert.push(fm)
             }
         },
         resetCards() {
@@ -167,11 +211,23 @@ export default {
             this.cluesClick = 0;
         },
         suspect() {
-            if (this.which != this.whichDetective) this.suspected = true
-            else {
-                this.$alert("你不能质疑自己！", "Are you OK?", {
-                    confirmButtonText: "I'm OK"
-                });
+            if (this.detectiveTime) {
+                if (this.which != this.whichDetective) this.suspected = true
+                else {
+                    this.$alert("你不能质疑自己！", "Are you OK?", {
+                        confirmButtonText: "I'm OK"
+                    });
+                }
+            }
+        },
+        assert() {
+            if (this.detectiveTime) {
+                if (this.which != this.whichDetective) this.asserted = true
+                else {
+                    this.$alert("你不能断言自己！", "Are you OK?", {
+                        confirmButtonText: "I'm OK"
+                    });
+                }
             }
         },
         chooseWhichDetective() {
@@ -183,6 +239,11 @@ export default {
         resetSuspect() {
             this.meansSuspect = []
             this.cluesSuspect = []
+        },
+        resetAssert(){
+            this.meansAssert=[]
+            this.cluesAssert=[]
+
         }
     }
 };

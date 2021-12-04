@@ -39,7 +39,12 @@ export default {
                 "侦探确认",
                 "侦探确认",
                 "侦探确认",
-                "结束发言"
+                "目击者确认调换",
+                "侦探确认",
+                "侦探确认",
+                "侦探确认",
+                "侦探确认",
+                "侦探确认",
             ]
         };
     },
@@ -65,14 +70,14 @@ export default {
                     this.$store.commit("gameProgress", 5);
                     this.$store.commit("killerMove", false);
                     this.timerReset();
-                    bus.$emit('addActivity',`凶手为@[*]@号，作案工具:@[*]@,现场线索:@[*]@;`)
+                    bus.$emit('addActivity', `凶手为@[*]@号，作案工具:@[*]@,现场线索:@[*]@;`)
                     this.$notify({
                         title: "目击现场",
                         message: "请目击者选定权重，1至6重要性递减",
                         showClose: false
                     });
 
-                    this.$store.commit("witnessMove");
+                    this.$store.commit("witnessMove", true);
                     this.timerStart();
                 } else {
                     this.$alert("没有选满两张卡，请凶手重新选择", "Error", {
@@ -81,7 +86,7 @@ export default {
                     this.$store.commit("gameStep", -1);
                 }
             }
-         
+
             if (this.step == 2) {
                 if (this.weight == 6) {
                     this.$message({
@@ -89,12 +94,15 @@ export default {
                         message: "目击者已确认，请调查员侦察现场"
                     });
                     this.$store.commit("gameProgress", 5);
+                    this.$store.commit("witnessMove", false);
+
                     this.timerReset();
                     this.timerStart();
                     //随机选一名玩家行动
+                    this.$store.commit('detectiveMove')
                     this.$store.commit("detectiveAlter");
                     bus.$emit("chooseWhichDetective");
-                    bus.$emit('addActivity','目击者给出的信息是:@'+this.SceneCards+'@,(重要性递减);')
+                    bus.$emit('addActivity', '目击者给出的信息是:@' + this.SceneCards + '@,(重要性递减);')
                 } else {
                     this.$alert("没有选满六张卡，请目击者重新选择", "Error", {
                         confirmButtonText: "确定"
@@ -104,14 +112,15 @@ export default {
                 }
             }
             if (this.step >= 3 && this.step <= 7) {
-                bus.$emit('sendSuspect')                
-                this.$store.commit("detectiveAlter"); //改变发言人
-                bus.$emit("chooseWhichDetective"); //给player组件传值，改变背景色
-                bus.$emit("reset"); //清空所有以质疑的
-                this.timerReset(); //重置时间
-                this.timerStart();
-                this.$store.commit("gameProgress", 5);
+                this.detectivesMove()
+            }
 
+            if (this.step == 7) {
+                this.$store.commit("witnessMove", 'reselect');
+            }
+            if(this.step>=8&&this.step<=12){
+                this.detectivesMove()
+                
             }
             // this.step += 1;
 
@@ -132,7 +141,7 @@ export default {
             }
             if (this.step >= 3 && this.step <= 7) {
                 bus.$emit("reset");
-                bus.$emit('resetSuspect')
+                bus.$emit('resetSuspectAndAssert')
             }
         },
         timerStart() {
@@ -174,7 +183,7 @@ export default {
                 }
                 if (that.seconds <= 0 && that.step >= 3 && that.step <= 7) {
                     clearInterval(that.timer);
-                   
+
                     that.$message({
                         type: 'warning',
                         message: "目击者选择超时，自动确认"
@@ -187,6 +196,17 @@ export default {
             this.seconds = 120;
             clearInterval(this.timer);
             console.log(this.timer);
+        },
+        detectivesMove() {
+            bus.$emit('sendSuspect')
+            bus.$emit('sendAssert')
+            this.$store.commit("detectiveAlter"); //改变发言人
+            bus.$emit("chooseWhichDetective"); //给player组件传值，改变背景色
+            bus.$emit("reset"); //清空所有以质疑的
+            this.timerReset(); //重置时间
+            this.timerStart();
+            this.$store.commit("gameProgress", 5);
+            bus.$emit('resetSuspectAndAssert')
         }
     },
     mounted() {
@@ -199,8 +219,8 @@ export default {
             clueCard: state => state.game.clueCard,
             weight: state => state.card.weight,
             step: state => state.game.step,
-            killer:state=>state.player.killer,
-            SceneCards:state=>state.game.SceneCards
+            killer: state => state.player.killer,
+            SceneCards: state => state.game.SceneCards
         }),
         getTime() {
             let min = parseInt(this.seconds / 60);

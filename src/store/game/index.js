@@ -3,6 +3,7 @@ export default {
     state:{
         killerTime:false,
         witnessTime:false,
+        detectiveTime:false,
         meanCard:'',
         clueCard:'',
         progress:0,

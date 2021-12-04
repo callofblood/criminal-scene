@@ -11,15 +11,23 @@ export default {
         state.meanCard=''
         state.clueCard=''
     },
-    witnessMove(state){
-        state.witnessTime=true
+    witnessMove(state,move){
+        state.witnessTime=move
+    },
+    detectiveMove(state){
+        state.detectiveTime=true
     },
     gameProgress(state,add){
         state.progress+=add
     },
-    setSceneCard(state,card){
+    addSceneCard(state,card){
         state.SceneCards.push(card)
         console.log(state.SceneCards)
+    },
+    setSceneCard(state,boo){
+        state.SceneCards[boo.index]=boo.content
+        
+        console.log(state.SceneCards)        
     },
     gameResetSceneCard(state){
         state.SceneCards=[]
