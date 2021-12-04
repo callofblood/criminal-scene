@@ -9,6 +9,6 @@ export default {
         let identity=bza.identity
         let id=bza.id
         state[identity]=id;
-        state.avatars[id-1].identity=identity
+        state.avatars[id].identity=identity
     }
 }

@@ -3,8 +3,8 @@
 
     <el-menu class="el-menu-vertical-demo" :collapse="isCollapse()">
         <el-menu-item-group>
-            <el-menu-item index="avatar.id" v-for='(avatar,num) in avatars' :key='avatar.id'>
-                <v-player :imgUrl='avatar.imgUrl' :which='avatar.id' :num='num' ></v-player>
+            <el-menu-item index="avatar.id" v-for='(avatar,id) in avatars' :key='avatar.id'>
+                <v-player :imgUrl='avatar.imgUrl' :which='avatar.id' :num='id' ></v-player>
             </el-menu-item>
         </el-menu-item-group>
     </el-menu>

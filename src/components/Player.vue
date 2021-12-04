@@ -36,7 +36,9 @@ export default {
             meansSuspect: [],
             cluesSuspect: [],
             meansAssert: [],
-            cluesAssert: []
+            cluesAssert: [],
+            ifSuspect: false,
+            ifAssert: false
         };
     },
     computed: {
@@ -47,7 +49,9 @@ export default {
             killerTime: state => state.game.killerTime,
             detectiveTime: state => state.game.detectiveTime,
             step: state => state.game.step,
-            whichDetective: state => state.game.whichDetective
+            whichDetective: state => state.game.whichDetective,
+            meanCard: state => state.game.meanCard,
+            clueCard: state => state.game.clueCard
         })
         // ...mapGetters(['playerByIdentity'])
     },
@@ -59,7 +63,7 @@ export default {
         // console.log(this.whichKiller)
         bus.$on("reset", () => {
             this.resetCards();
-            
+
         });
         bus.$on('chooseWhichDetective', () => {
             this.chooseWhichDetective()
@@ -92,6 +96,7 @@ export default {
                 bus.$emit('addActivity', suspectMes) //传给log
                 this.meansSuspect = []
                 this.cluesSuspect = []
+                this.ifSuspect = true
             }
         })
         bus.$on('sendAssert', () => {
@@ -114,14 +119,38 @@ export default {
                 // console.log(suspectMes)
 
                 bus.$emit('addActivity', assertMes) //传给log
-                this.meansSuspect = []
-                this.cluesSuspect = []
+
+                console.log(Object.values(this.meansAssert[0]))
+                let m = Object.values(this.meansAssert[0])[0]
+                let c = Object.values(this.cluesAssert[0])[0]
+                if (m == this.meanCard && c == this.clueCard) {
+                    console.log('破案成功')
+                    this.$message({
+                        type: "success",
+                        message: this.whichDetective + "号已找出凶手，凶手是" + asserted + "号"
+                    });
+                    this.end()
+                }
+                this.meansAssert = []
+                this.cluesAssert = []
+                this.ifAssert = true
+            }
+        })
+        bus.$on('ifskip', () => {
+            if (!this.ifSuspect && !this.ifAssert) {
+                if (this.whichDetective == this.which) {
+                    let skipMsg = this.whichDetective + `号侦探本回合待机`
+                    bus.$emit('addActivity', skipMsg) //传给log
+                }
             }
         })
         bus.$on('resetSuspectAndAssert', () => {
-            this.resetSuspect()
-            this.resetAssert()
-        })
+                this.resetSuspect()
+                this.resetAssert()
+            }),
+            bus.$on('checkAssert', () => {
+                this.checkAssert()
+            })
     },
     methods: {
         selectPlayer(num) {
@@ -167,6 +196,7 @@ export default {
                 let fm = {}
                 fm[id] = this.$refs.means[val.id].$el.firstChild.innerText
                 this.meansAssert.push(fm)
+
             }
         },
         cluesCardClick(val) {
@@ -240,10 +270,21 @@ export default {
             this.meansSuspect = []
             this.cluesSuspect = []
         },
-        resetAssert(){
-            this.meansAssert=[]
-            this.cluesAssert=[]
+        resetAssert() {
+            this.meansAssert = []
+            this.cluesAssert = []
 
+        },
+        checkAssert() {
+            if (this.meansAssert[0] == this.meanCard &&
+                this.cluesAssert[0] == this.clueCard) {
+                return true
+            } else {
+                return false
+            }
+        },
+        end() {
+            this.$router.push('/scoreboard')
         }
     }
 };
