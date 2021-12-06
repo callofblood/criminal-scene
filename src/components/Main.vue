@@ -24,6 +24,7 @@
   </el-col>
 </el-row> -->
     <v-log class='log'></v-log>
+    <v-scoreboard class='scoreboard'  v-if='gameOver'></v-scoreboard>
 </div>
 </template>
 
@@ -34,12 +35,15 @@ import SceneCard from './card/SceneCard'
 import Hint from './UI/Hint'
 // import Timer from './UI/Timer'
 import Log from './UI/Log'
+import Scoreboard from './scoreboard'
+import {mapState} from "vuex"
 export default {
     components: {
         'v-scenecard': SceneCard,
         // 'v-player':Player,
         'v-hint': Hint,
-        'v-log': Log
+        'v-log': Log,
+        'v-scoreboard':Scoreboard
         // 'v-timer':Timer
     },
     data() {
@@ -65,11 +69,16 @@ export default {
         this.genSceneCard()
 
     },
+    computed:{  
+        ...mapState({
+            gameOver:state=>state.game.gameOver
+        })
+    }
 
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scope>
 .main {
     position: relative;
     // display: flex;
@@ -95,7 +104,15 @@ export default {
     .log{
         position: absolute;
         bottom:0;
-        
+        // overflow: hidden;
+    }
+    .scoreboard{
+        position: absolute;
+        right:300px;
+        bottom: 0;
+        width:100%;
+        // overflow: hidden;
+        // height:600px;
     }
 
 }

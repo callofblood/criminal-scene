@@ -1,6 +1,7 @@
 <template>
 <div class='player' @click='selectPlayer(num)' :class='nowDetective'>
     <img :src="imgUrl" alt="">
+    <div class='disabled' v-if='avatars[which].ifHaveAsserted'>Disabled</div>
     <div class='cards'>
         <v-card class='means' v-for='(i,id) in meansNum' :key='i' :cname='cname[id+num*4]' :ename='ename[id+num*4]' :id='id' @getSonValue='meansCardClick' ref='means'></v-card>
         <v-card class='clues' v-for='(i,id) in cluesNum' :key='i+4' :cname='cname[id+num*4+20]' :ename='ename[id+num*4+20]' :id='id' @getSonValue='cluesCardClick' ref='clues'></v-card>
@@ -33,12 +34,14 @@ export default {
             cluesClick: 0,
             nowDetective: '',
             suspected: false,
+            asserted:false,
             meansSuspect: [],
             cluesSuspect: [],
             meansAssert: [],
             cluesAssert: [],
             ifSuspect: false,
-            ifAssert: false
+            ifAssert: false,
+            
         };
     },
     computed: {
@@ -51,16 +54,15 @@ export default {
             step: state => state.game.step,
             whichDetective: state => state.game.whichDetective,
             meanCard: state => state.game.meanCard,
-            clueCard: state => state.game.clueCard
-        })
-        // ...mapGetters(['playerByIdentity'])
+            clueCard: state => state.game.clueCard,
+            avatars:state=>state.player.avatars
+        }),
+        // ...mapGetters(['detectivesHaveAsserted'])
     },
     components: {
         "v-card": card
     },
-    mounted() {
-        // console.log(this.playerByIdentity('killer'))
-        // console.log(this.whichKiller)
+    mounted() {      
         bus.$on("reset", () => {
             this.resetCards();
 
@@ -120,11 +122,11 @@ export default {
 
                 bus.$emit('addActivity', assertMes) //传给log
 
-                console.log(Object.values(this.meansAssert[0]))
+                // console.log(Object.values(this.meansAssert[0]))
                 let m = Object.values(this.meansAssert[0])[0]
                 let c = Object.values(this.cluesAssert[0])[0]
                 if (m == this.meanCard && c == this.clueCard) {
-                    console.log('破案成功')
+                    // console.log('破案成功')
                     this.$message({
                         type: "success",
                         message: this.whichDetective + "号已找出凶手，凶手是" + asserted + "号"
@@ -252,7 +254,11 @@ export default {
         },
         assert() {
             if (this.detectiveTime) {
-                if (this.which != this.whichDetective) this.asserted = true
+                if (this.which != this.whichDetective ){ //如果不是本人
+                    this.asserted = true
+                    this.$store.commit('haveAsserted',this.whichDetective)//将侦探设为已断言
+                    console.log(this.detectivesHaveAsserted)
+                }
                 else {
                     this.$alert("你不能断言自己！", "Are you OK?", {
                         confirmButtonText: "I'm OK"
@@ -284,7 +290,8 @@ export default {
             }
         },
         end() {
-            this.$router.push('/scoreboard')
+            this.nowDetective = ''
+            this.$store.commit('gameOver')
         }
     }
 };
@@ -302,8 +309,17 @@ export default {
     .name {
         line-height: 20px;
     }
-
-    img {
+    .disabled{
+        position: absolute;
+        color:#f00;
+        font-size:3em;
+        font-weight:bolder;
+        transform:rotate(45deg);
+        transform-origin: left top;
+        margin-left:30px;
+        font-family: "Hobo Std"
+    }
+    img{
         width: 125px;
         height: 125px;
         float: left;
@@ -372,4 +388,5 @@ export default {
 .nowDetective {
     background: #000;
 }
+
 </style>

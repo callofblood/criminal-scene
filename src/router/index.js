@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import home from '../views/index.vue'
-import scoreboard from '../views/scoreboard.vue'
+
 import VueRouter from 'vue-router';
 
 
@@ -35,9 +35,6 @@ export default new Router({
     //     }
     //   ]
     },
-   {
-     path:'/scoreboard',
-     component:scoreboard
-   }
+   
   ]
 })

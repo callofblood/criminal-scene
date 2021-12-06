@@ -11,6 +11,7 @@ export default {
         step:0,
         whichDetective:-1,
         totalPlayer: 5,
+        gameOver:true
     },
     mutations
 }

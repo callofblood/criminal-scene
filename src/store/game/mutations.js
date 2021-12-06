@@ -42,6 +42,10 @@ export default {
             state.whichDetective=(state.whichDetective+1)%state.totalPlayer
         }
         if(state.step==7)state.whichDetective=-1
+    },
+    gameOver(state){
+        state.gameOver=true
+        
     }
 
 }

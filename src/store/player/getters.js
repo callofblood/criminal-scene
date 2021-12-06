@@ -1,5 +1,7 @@
 export default {
-    playerByIdentity:state=>(identity)=>{
-        return state.avatars.filter(item=>item.identity==identity)
+    detectivesHaveAsserted:function(state){
+        let tmp=state.avatars.filter(item=>item.ifHaveAsserted==true)
+        return tmp
     }
+    
 }

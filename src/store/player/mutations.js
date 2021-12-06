@@ -10,5 +10,9 @@ export default {
         let id=bza.id
         state[identity]=id;
         state.avatars[id].identity=identity
+        
+    },
+    haveAsserted(state,which){
+        state.avatars[which].ifHaveAsserted=true
     }
 }
