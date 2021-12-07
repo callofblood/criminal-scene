@@ -45,7 +45,7 @@ export default {
     },
     gameOver(state){
         state.gameOver=true
-        
+        console.log(state)
     }
 
 }

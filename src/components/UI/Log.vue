@@ -52,10 +52,10 @@ export default {
             )
         },
         addColor(info){
-            console.log(info)
+           
             let pattern=/(@(.+?)@)/g
             let rs=info.replace(pattern,"<span style='color:red'>$2</span>")
-            console.log(rs)
+            
             return rs
         }
     },

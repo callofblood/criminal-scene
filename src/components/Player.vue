@@ -3,8 +3,8 @@
     <img :src="imgUrl" alt="">
     <div class='disabled' v-if='avatars[which].ifHaveAsserted'>Disabled</div>
     <div class='cards'>
-        <v-card class='means' v-for='(i,id) in meansNum' :key='i' :cname='cname[id+num*4]' :ename='ename[id+num*4]' :id='id' @getSonValue='meansCardClick' ref='means'></v-card>
-        <v-card class='clues' v-for='(i,id) in cluesNum' :key='i+4' :cname='cname[id+num*4+20]' :ename='ename[id+num*4+20]' :id='id' @getSonValue='cluesCardClick' ref='clues'></v-card>
+        <v-card class='means' v-for='(i,id) in meansNum' :key='i' :cname='cname[id+num*4]' :ename='ename[id+num*4]' :id='id' @getSonValue='meansCardClick' ref='means' ></v-card>
+        <v-card class='clues' v-for='(i,id) in cluesNum' :key='i+4' :cname='cname[id+num*4+20]' :ename='ename[id+num*4+20]' :id='id' @getSonValue='cluesCardClick' ref='clues' ></v-card>
     </div>
     <div class='stations'>
         <div class='suspectButton button'>
@@ -120,7 +120,6 @@ export default {
                 assertMes += '@'
                 // console.log(suspectMes)
 
-                bus.$emit('addActivity', assertMes) //传给log
 
                 // console.log(Object.values(this.meansAssert[0]))
                 let m = Object.values(this.meansAssert[0])[0]
@@ -132,20 +131,19 @@ export default {
                         message: this.whichDetective + "号已找出凶手，凶手是" + asserted + "号"
                     });
                     this.end()
+                    assertMes+='@断言成功，游戏结束！@'
+                }else{
+                    assertMes+='@断言失败！@'
                 }
+                bus.$emit('addActivity', assertMes) //传给log
+                
                 this.meansAssert = []
                 this.cluesAssert = []
                 this.ifAssert = true
+                // console.log(this.ifAssert)
             }
         })
-        bus.$on('ifskip', () => {
-            if (!this.ifSuspect && !this.ifAssert) {
-                if (this.whichDetective == this.which) {
-                    let skipMsg = this.whichDetective + `号侦探本回合待机`
-                    bus.$emit('addActivity', skipMsg) //传给log
-                }
-            }
-        })
+
         bus.$on('resetSuspectAndAssert', () => {
                 this.resetSuspect()
                 this.resetAssert()
@@ -167,7 +165,7 @@ export default {
             }
         },
         meansCardClick(val) {
-            //val是点了第几张卡
+            //val.id是点了第几张卡
             if (
                 this.$store.state.player.killer == this.num &&
                 this.meansClick < 1 &&
@@ -177,26 +175,29 @@ export default {
 
                 this.meansClick++;
                 this.$refs.means[val.id].$el.style.background = "#ff0";
-                let cardName = this.$refs.means[val.id].$el.firstChild.innerText;
+                let cardName = this.$refs.means[val.id].$el.getElementsByClassName('cname')[0].innerText
                 this.$store.commit("gameSetCard", {
                     cardType: "meanCard",
                     cardName
                 });
                 // console.log(this.$store.state.game)
             }
-            if (this.suspected) {
+            if (this.suspected&&this.$refs.means[val.id].$el.style.background!='rgb(255, 255, 0)') {
                 this.$refs.means[val.id].$el.style.background = "#ff0";
+                this.$refs.means[val.id].time++
+                // console.log(this.$refs.means[val.id])
                 let id = this.which //标定怀疑的对象
                 let fm = {}
-                fm[id] = this.$refs.means[val.id].$el.firstChild.innerText
+                fm[id] = this.$refs.means[val.id].$el.getElementsByClassName('cname')[0].innerText
                 this.meansSuspect.push(fm)
             }
             if (this.asserted && this.meansClick < 1) {
                 this.meansClick++;
                 this.$refs.means[val.id].$el.style.background = "orange";
+                this.$refs.means[val.id].time+=5
                 let id = this.which //标定怀疑的对象
                 let fm = {}
-                fm[id] = this.$refs.means[val.id].$el.firstChild.innerText
+                fm[id] = this.$refs.means[val.id].$el.getElementsByClassName('cname')[0].innerText
                 this.meansAssert.push(fm)
 
             }
@@ -210,25 +211,28 @@ export default {
                 //this.num指第几个玩家
                 this.cluesClick++;
                 this.$refs.clues[val.id].$el.style.background = "#ff0";
-                let cardName = this.$refs.clues[val.id].$el.firstChild.innerText;
+                let cardName = this.$refs.clues[val.id].$el.getElementsByClassName('cname')[0].innerText
                 this.$store.commit("gameSetCard", {
                     cardType: "clueCard",
                     cardName
                 });
             }
-            if (this.suspected) {
+            if (this.suspected&&this.$refs.clues[val.id].$el.style.background!='rgb(255, 255, 0)') {
                 this.$refs.clues[val.id].$el.style.background = "#ff0";
+                this.$refs.clues[val.id].time++
+                console.log(this.$refs.clues[val.id].$el.style.background)
                 let id = this.which
                 let fm = {}
-                fm[id] = this.$refs.clues[val.id].$el.firstChild.innerText
+                fm[id] = this.$refs.clues[val.id].$el.getElementsByClassName('cname')[0].innerText
                 this.cluesSuspect.push(fm)
             }
             if (this.asserted && this.cluesClick < 1) {
                 this.cluesClick++;
                 this.$refs.clues[val.id].$el.style.background = "orange";
+                this.$refs.clues[val.id].time+=5
                 let id = this.which
                 let fm = {}
-                fm[id] = this.$refs.clues[val.id].$el.firstChild.innerText
+                fm[id] = this.$refs.clues[val.id].$el.getElementsByClassName('cname')[0].innerText
                 this.cluesAssert.push(fm)
             }
         },
@@ -244,7 +248,10 @@ export default {
         },
         suspect() {
             if (this.detectiveTime) {
-                if (this.which != this.whichDetective) this.suspected = true
+                if (this.which != this.whichDetective) {
+                    this.suspected = true
+                    this.asserted = false
+                }
                 else {
                     this.$alert("你不能质疑自己！", "Are you OK?", {
                         confirmButtonText: "I'm OK"
@@ -253,15 +260,21 @@ export default {
             }
         },
         assert() {
+      
             if (this.detectiveTime) {
-                if (this.which != this.whichDetective ){ //如果不是本人
+                if (this.which != this.whichDetective &&!this.avatars[this.whichDetective].ifHaveAsserted){ //如果不是本人,且自己还没断言
                     this.asserted = true
+                    this.suspected=false
                     this.$store.commit('haveAsserted',this.whichDetective)//将侦探设为已断言
-                    console.log(this.detectivesHaveAsserted)
+                    // console.log(this.detectivesHaveAsserted)
                 }
-                else {
+                else if(this.which == this.whichDetective){
                     this.$alert("你不能断言自己！", "Are you OK?", {
                         confirmButtonText: "I'm OK"
+                    });
+                }else if(this.avatars[this.whichDetective].ifHaveAsserted){
+                     this.$alert("你已经断言过！", "Nope", {
+                        confirmButtonText: "OK"
                     });
                 }
             }
@@ -290,8 +303,10 @@ export default {
             }
         },
         end() {
-            this.nowDetective = ''
+            bus.$emit('resetPlayerBackground')
+  
             this.$store.commit('gameOver')
+            console.log()
         }
     }
 };
@@ -303,7 +318,7 @@ export default {
     border: 2px dashed #000;
     border-radius: 20px;
     width: 550px;
-    overflow: hidden;
+    // overflow: hidden;
 
     // background:#f00;
     .name {
@@ -331,7 +346,7 @@ export default {
         width: 400px;
         float: right;
         margin-left: 15px;
-        overflow: hidden;
+        // overflow: hidden;
 
         .means,
         .clues {
@@ -341,7 +356,7 @@ export default {
             height: 125px;
             width: 80px;
             float: right;
-            overflow: hidden;
+            // overflow: hidden;
             background: #f00;
 
             .cname {

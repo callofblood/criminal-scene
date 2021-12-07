@@ -23,6 +23,7 @@ import {
     mapState
 } from "vuex";
 
+
 export default {
     data() {
         return {
@@ -118,9 +119,9 @@ export default {
             if (this.step == 7) {
                 this.$store.commit("witnessMove", 'reselect');
             }
-            if(this.step>=8&&this.step<=12){
+            if (this.step >= 8 && this.step <= 12) {
                 this.detectivesMove()
-                
+
             }
             // this.step += 1;
 
@@ -200,19 +201,28 @@ export default {
         detectivesMove() {
             bus.$emit('sendSuspect')
             bus.$emit('sendAssert')
-            bus.$emit('ifskip')
+            // bus.$emit('ifskip')
             this.$store.commit("detectiveAlter"); //改变发言人
             bus.$emit("chooseWhichDetective"); //给player组件传值，改变背景色
             bus.$emit("reset"); //清空所有以质疑的
-            this.timerReset(); //重置时间
-            this.timerStart();
+            if (!this.gameOver) {
+                console.log(this.gameOver)
+                this.timerReset(); //重置时间
+                this.timerStart();
+            }else{
+                clearInterval(this.timer)
+            }
             this.$store.commit("gameProgress", 5);
             bus.$emit('resetSuspectAndAssert')
         }
     },
     mounted() {
         // this.open1()
-        // this.step++
+        // this.step++\
+        // let that = this
+        // bus.$on('gameOver', () => {
+        //     window.clearInterval(that.timer)
+        // })
     },
     computed: {
         ...mapState({
@@ -221,7 +231,8 @@ export default {
             weight: state => state.card.weight,
             step: state => state.game.step,
             killer: state => state.player.killer,
-            SceneCards: state => state.game.SceneCards
+            SceneCards: state => state.game.SceneCards,
+            gameOver: state => state.game.gameOver
         }),
         getTime() {
             let min = parseInt(this.seconds / 60);

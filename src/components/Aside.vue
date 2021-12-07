@@ -4,7 +4,7 @@
     <el-menu class="el-menu-vertical-demo" :collapse="isCollapse()">
         <el-menu-item-group>
             <el-menu-item index="avatar.id" v-for='(avatar,id) in avatars' :key='avatar.id'>
-                <v-player :imgUrl='avatar.imgUrl' :which='avatar.id' :num='id' ></v-player>
+                <v-player :imgUrl='avatar.imgUrl' :which='avatar.id' :num='id' ref='players'></v-player>
             </el-menu-item>
         </el-menu-item-group>
     </el-menu>
@@ -54,6 +54,7 @@
 import Player from './Player.vue'
 import axios from 'axios'
 import {mapState} from 'vuex'
+import bus from "../router/bus.js";
 export default {
     data() {
         return {
@@ -75,6 +76,11 @@ export default {
                     ename
                 })
             })
+        },
+        resetPlayerBackground(){
+             for (let i = 0; i < this.avatars.length; i++) {
+                this.$refs.players[i].$el.style.background = "rgb(203, 164, 229)";
+            }
         }
     },
     computed:{
@@ -83,7 +89,9 @@ export default {
         })
     },
     mounted() {
-
+        bus.$on('resetPlayerBackground',()=>{
+            this.resetPlayerBackground()
+        })
         this.avatars = this.$store.state.player.avatars
         this.getCard()
         
