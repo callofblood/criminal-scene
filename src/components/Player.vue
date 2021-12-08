@@ -3,8 +3,8 @@
     <img :src="imgUrl" alt="">
     <div class='disabled' v-if='avatars[which].ifHaveAsserted'>Disabled</div>
     <div class='cards'>
-        <v-card class='means' v-for='(i,id) in meansNum' :key='i' :cname='cname[id+num*4]' :ename='ename[id+num*4]' :id='id' @getSonValue='meansCardClick' ref='means' ></v-card>
-        <v-card class='clues' v-for='(i,id) in cluesNum' :key='i+4' :cname='cname[id+num*4+20]' :ename='ename[id+num*4+20]' :id='id' @getSonValue='cluesCardClick' ref='clues' ></v-card>
+        <v-card class='means' v-for='(i,id) in meansNum' :key='i' :cname='cname[id+num*4]' :ename='ename[id+num*4]' :id='id' @getSonValue='meansCardClick' ref='means'></v-card>
+        <v-card class='clues' v-for='(i,id) in cluesNum' :key='i+4' :cname='cname[id+num*4+20]' :ename='ename[id+num*4+20]' :id='id' @getSonValue='cluesCardClick' ref='clues'></v-card>
     </div>
     <div class='stations'>
         <div class='suspectButton button'>
@@ -34,14 +34,14 @@ export default {
             cluesClick: 0,
             nowDetective: '',
             suspected: false,
-            asserted:false,
+            asserted: false,
             meansSuspect: [],
             cluesSuspect: [],
             meansAssert: [],
             cluesAssert: [],
             ifSuspect: false,
             ifAssert: false,
-            
+
         };
     },
     computed: {
@@ -55,14 +55,15 @@ export default {
             whichDetective: state => state.game.whichDetective,
             meanCard: state => state.game.meanCard,
             clueCard: state => state.game.clueCard,
-            avatars:state=>state.player.avatars
+            avatars: state => state.player.avatars,
+            killer: state => state.player.killer
         }),
         // ...mapGetters(['detectivesHaveAsserted'])
     },
     components: {
         "v-card": card
     },
-    mounted() {      
+    mounted() {
         bus.$on("reset", () => {
             this.resetCards();
 
@@ -120,7 +121,6 @@ export default {
                 assertMes += '@'
                 // console.log(suspectMes)
 
-
                 // console.log(Object.values(this.meansAssert[0]))
                 let m = Object.values(this.meansAssert[0])[0]
                 let c = Object.values(this.cluesAssert[0])[0]
@@ -131,12 +131,12 @@ export default {
                         message: this.whichDetective + "号已找出凶手，凶手是" + asserted + "号"
                     });
                     this.end()
-                    assertMes+='@断言成功，游戏结束！@'
-                }else{
-                    assertMes+='@断言失败！@'
+                    assertMes += '@断言成功，游戏结束！@'
+                } else {
+                    assertMes += '@断言失败！@'
                 }
                 bus.$emit('addActivity', assertMes) //传给log
-                
+
                 this.meansAssert = []
                 this.cluesAssert = []
                 this.ifAssert = true
@@ -182,23 +182,54 @@ export default {
                 });
                 // console.log(this.$store.state.game)
             }
-            if (this.suspected&&this.$refs.means[val.id].$el.style.background!='rgb(255, 255, 0)') {
+            if (this.suspected && this.$refs.means[val.id].$el.style.background != 'rgb(255, 255, 0)') {
                 this.$refs.means[val.id].$el.style.background = "#ff0";
                 this.$refs.means[val.id].time++
                 // console.log(this.$refs.means[val.id])
                 let id = this.which //标定怀疑的对象
                 let fm = {}
-                fm[id] = this.$refs.means[val.id].$el.getElementsByClassName('cname')[0].innerText
+                let boo = this.$refs.means[val.id].$el.getElementsByClassName('cname')[0].innerText
+                fm[id] = boo
                 this.meansSuspect.push(fm)
+                //首先判断是不是侦探，如果是凶手不需要
+                if (this.whichDetective != this.killer) {
+                    //判断是否怀疑正确后加分，
+                    if (boo == this.meanCard) {
+                        this.$store.commit('addScore', {
+                            index: this.whichDetective,
+                            score: 2
+                        })
+                    } else if (this.which == this.killer) {
+                        this.$store.commit('addScore', {
+                            index: this.whichDetective,
+                            score: 1
+                        })
+                    }
+                    //如果怀疑对象错误则扣分1,且凶手加分
+                    if (this.which != this.killer) {
+                        this.$store.commit('addScore', {
+                            index: this.whichDetective,
+                            score: -1
+                        })
+                         this.$store.commit('addScore',{
+                            index:this.killer,
+                            score:1
+                        })
+                    }
+                }
+
             }
             if (this.asserted && this.meansClick < 1) {
                 this.meansClick++;
                 this.$refs.means[val.id].$el.style.background = "orange";
-                this.$refs.means[val.id].time+=5
+                this.$refs.means[val.id].time += 5
                 let id = this.which //标定怀疑的对象
                 let fm = {}
-                fm[id] = this.$refs.means[val.id].$el.getElementsByClassName('cname')[0].innerText
+                let zoo=this.$refs.means[val.id].$el.getElementsByClassName('cname')[0].innerText
+                fm[id] = zoo
                 this.meansAssert.push(fm)
+
+
 
             }
         },
@@ -217,23 +248,53 @@ export default {
                     cardName
                 });
             }
-            if (this.suspected&&this.$refs.clues[val.id].$el.style.background!='rgb(255, 255, 0)') {
+            if (this.suspected && this.$refs.clues[val.id].$el.style.background != 'rgb(255, 255, 0)') {
                 this.$refs.clues[val.id].$el.style.background = "#ff0";
                 this.$refs.clues[val.id].time++
                 console.log(this.$refs.clues[val.id].$el.style.background)
                 let id = this.which
                 let fm = {}
-                fm[id] = this.$refs.clues[val.id].$el.getElementsByClassName('cname')[0].innerText
+                let boo = this.$refs.clues[val.id].$el.getElementsByClassName('cname')[0].innerText
+                fm[id] = boo
                 this.cluesSuspect.push(fm)
+                //侦探才加分
+                if (this.whichDetective != this.killer) {
+                    //判断是否怀疑正确加分
+                    if (boo == this.clueCard) { //猜对一张加2分
+                        this.$store.commit('addScore', {
+                            index: this.whichDetective,
+                            score: 2
+                        })
+                    } else if (this.which == this.killer) { //仅猜对凶手加1分
+                        this.$store.commit('addScore', {
+                            index: this.whichDetective,
+                            score: 1
+                        })
+                    }
+                    //如果怀疑对象错误则扣分1，且凶手加分
+                    if (this.which != this.killer) {
+                        this.$store.commit('addScore', {
+                            index: this.whichDetective,
+                            score: -1
+                        })
+                        this.$store.commit('addScore',{
+                            index:this.killer,
+                            score:2
+                        })
+                    }
+                }
+
             }
             if (this.asserted && this.cluesClick < 1) {
                 this.cluesClick++;
                 this.$refs.clues[val.id].$el.style.background = "orange";
-                this.$refs.clues[val.id].time+=5
+                this.$refs.clues[val.id].time += 5
                 let id = this.which
                 let fm = {}
-                fm[id] = this.$refs.clues[val.id].$el.getElementsByClassName('cname')[0].innerText
+                let zoo= this.$refs.clues[val.id].$el.getElementsByClassName('cname')[0].innerText
+                fm[id] =zoo
                 this.cluesAssert.push(fm)
+                
             }
         },
         resetCards() {
@@ -251,8 +312,7 @@ export default {
                 if (this.which != this.whichDetective) {
                     this.suspected = true
                     this.asserted = false
-                }
-                else {
+                } else {
                     this.$alert("你不能质疑自己！", "Are you OK?", {
                         confirmButtonText: "I'm OK"
                     });
@@ -260,20 +320,19 @@ export default {
             }
         },
         assert() {
-      
+
             if (this.detectiveTime) {
-                if (this.which != this.whichDetective &&!this.avatars[this.whichDetective].ifHaveAsserted){ //如果不是本人,且自己还没断言
+                if (this.which != this.whichDetective && !this.avatars[this.whichDetective].ifHaveAsserted) { //如果不是本人,且自己还没断言
                     this.asserted = true
-                    this.suspected=false
-                    this.$store.commit('haveAsserted',this.whichDetective)//将侦探设为已断言
+                    this.suspected = false
+                    this.$store.commit('haveAsserted', this.whichDetective) //将侦探设为已断言
                     // console.log(this.detectivesHaveAsserted)
-                }
-                else if(this.which == this.whichDetective){
+                } else if (this.which == this.whichDetective) {
                     this.$alert("你不能断言自己！", "Are you OK?", {
                         confirmButtonText: "I'm OK"
                     });
-                }else if(this.avatars[this.whichDetective].ifHaveAsserted){
-                     this.$alert("你已经断言过！", "Nope", {
+                } else if (this.avatars[this.whichDetective].ifHaveAsserted) {
+                    this.$alert("你已经断言过！", "Nope", {
                         confirmButtonText: "OK"
                     });
                 }
@@ -304,7 +363,7 @@ export default {
         },
         end() {
             bus.$emit('resetPlayerBackground')
-  
+
             this.$store.commit('gameOver')
             console.log()
         }
@@ -324,17 +383,19 @@ export default {
     .name {
         line-height: 20px;
     }
-    .disabled{
+
+    .disabled {
         position: absolute;
-        color:#f00;
-        font-size:3em;
-        font-weight:bolder;
-        transform:rotate(45deg);
+        color: #f00;
+        font-size: 3em;
+        font-weight: bolder;
+        transform: rotate(45deg);
         transform-origin: left top;
-        margin-left:30px;
+        margin-left: 30px;
         font-family: "Hobo Std"
     }
-    img{
+
+    img {
         width: 125px;
         height: 125px;
         float: left;
@@ -403,5 +464,4 @@ export default {
 .nowDetective {
     background: #000;
 }
-
 </style>

@@ -19,7 +19,7 @@
 
             <el-table-column prop="score" label="score">
                 <template slot-scope="scope">
-                    <slot>{{scope.$index}}</slot>
+                    <slot>{{avatars[scope.$index].score}}</slot>
                 </template>
             </el-table-column>
 
